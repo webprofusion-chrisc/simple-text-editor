@@ -2,6 +2,7 @@
 #include <commdlg.h>
 #include <fstream>
 #include <string>
+#include <richedit.h> // Add this include
 
 #define IDC_MAIN_EDIT 101
 #define IDM_FILE_OPEN 102
@@ -19,6 +20,9 @@ HFONT g_hFont = NULL;
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	// Enable DPI awareness
 	SetProcessDPIAware();
+
+	// Load Rich Edit library
+	LoadLibraryW(L"Msftedit.dll");
 
 	WNDCLASS wc = { 0 };
 
@@ -66,7 +70,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 	case WM_CREATE:
 		AddMenus(hwnd);
-		hwndEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"EDIT", L"",
+		hwndEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"RICHEDIT50W", L"",
 			WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VSCROLL | WS_HSCROLL,
 			0, 0, 0, 0, hwnd, (HMENU)IDC_MAIN_EDIT, GetModuleHandle(NULL), NULL);
 		// Set Consolas 11pt font
