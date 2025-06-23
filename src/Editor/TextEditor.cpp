@@ -8,14 +8,25 @@
 #define IDM_FILE_OPEN 102
 #define IDM_FILE_SAVEAS 103
 #define IDM_FILE_EXIT 104
+#define IDM_FILE_SAVE 105 // Add new menu ID for Save
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 void DoFileOpen(HWND hwndEdit, HWND hwnd);
 void DoFileSaveAs(HWND hwndEdit, HWND hwnd);
 void OpenFileToEditor(HWND hwndEdit, const wchar_t* szFile);
+void DoFileSave(HWND hwndEdit, HWND hwnd);
 
 // Global font handle
 HFONT g_hFont = NULL;
+
+// Track the currently open file path
+template<size_t N>
+void wstrcpy_safe(wchar_t (&dst)[N], const wchar_t* src) {
+    wcsncpy_s(dst, N, src, N-1);
+    dst[N-1] = 0;
+}
+
+wchar_t g_currentFile[MAX_PATH] = {0};
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow) {
 	// Enable DPI awareness
@@ -55,6 +66,7 @@ void AddMenus(HWND hwnd) {
 	HMENU hMenu = CreateMenu();
 
 	AppendMenu(hMenu, MF_STRING, IDM_FILE_OPEN, L"Open");
+	AppendMenu(hMenu, MF_STRING, IDM_FILE_SAVE, L"Save"); // Add Save
 	AppendMenu(hMenu, MF_STRING, IDM_FILE_SAVEAS, L"Save As");
 	AppendMenu(hMenu, MF_SEPARATOR, 0, NULL);
 	AppendMenu(hMenu, MF_STRING, IDM_FILE_EXIT, L"Exit");
@@ -86,10 +98,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	case WM_SIZE:
 		MoveWindow(hwndEdit, 0, 0, LOWORD(lParam), HIWORD(lParam), TRUE);
 		break;
+	case WM_KEYDOWN:
+		if ((GetKeyState(VK_CONTROL) & 0x8000) && (wParam == 'S' || wParam == 's')) {
+			DoFileSave(hwndEdit, hwnd);
+			return 0;
+		}
+		break;
 	case WM_COMMAND:
 		switch (LOWORD(wParam)) {
 		case IDM_FILE_OPEN:
 			DoFileOpen(hwndEdit, hwnd);
+			break;
+		case IDM_FILE_SAVE:
+			DoFileSave(hwndEdit, hwnd);
 			break;
 		case IDM_FILE_SAVEAS:
 			DoFileSaveAs(hwndEdit, hwnd);
@@ -137,6 +158,7 @@ void DoFileOpen(HWND hwndEdit, HWND hwnd) {
 
 	if (GetOpenFileName(&ofn)) {
 		OpenFileToEditor(hwndEdit, szFile);
+		wstrcpy_safe(g_currentFile, szFile); // Set current file
 	}
 }
 
@@ -148,6 +170,21 @@ void OpenFileToEditor(HWND hwndEdit, const wchar_t* szFile) {
 	std::wstring wcontent(wlen, 0);
 	MultiByteToWideChar(CP_UTF8, 0, content.c_str(), (int)content.size(), &wcontent[0], wlen);
 	SetWindowText(hwndEdit, wcontent.c_str());
+}
+
+void DoFileSave(HWND hwndEdit, HWND hwnd) {
+    if (g_currentFile[0] == 0) {
+        DoFileSaveAs(hwndEdit, hwnd);
+        return;
+    }
+    int len = GetWindowTextLength(hwndEdit);
+    std::wstring wcontent(len, 0);
+    GetWindowText(hwndEdit, &wcontent[0], len + 1);
+    int u8len = WideCharToMultiByte(CP_UTF8, 0, wcontent.c_str(), len, NULL, 0, NULL, NULL);
+    std::string content(u8len, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wcontent.c_str(), len, &content[0], u8len, NULL, NULL);
+    std::ofstream file(g_currentFile, std::ios::binary);
+    file.write(content.c_str(), content.size());
 }
 
 void DoFileSaveAs(HWND hwndEdit, HWND hwnd) {
@@ -171,5 +208,6 @@ void DoFileSaveAs(HWND hwndEdit, HWND hwnd) {
 		WideCharToMultiByte(CP_UTF8, 0, wcontent.c_str(), len, &content[0], u8len, NULL, NULL);
 		std::ofstream file(szFile, std::ios::binary);
 		file.write(content.c_str(), content.size());
+		wstrcpy_safe(g_currentFile, szFile); // Set current file
 	}
 }
