@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <richedit.h>
+#include "resource.h"
 
 #define IDC_MAIN_EDIT 101
 #define IDC_TAB_CTRL 200
@@ -50,6 +51,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow
 	wc.lpszClassName = L"SimpleTextEditor";
 	wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wc.hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_APPICON));
 
 	RegisterClass(&wc);
 
