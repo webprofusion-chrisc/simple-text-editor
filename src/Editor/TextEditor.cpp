@@ -35,7 +35,7 @@ EditorTab* GetTabData(HWND hwndTab, int index);
 HFONT g_hFont = NULL;
 std::vector<EditorTab> g_tabs;
 
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR lpCmdLine, int nCmdShow)
 {
 	SetProcessDPIAware();
 
@@ -57,6 +57,38 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768, NULL, NULL, hInstance, NULL);
 
 	DragAcceptFiles(hwnd, TRUE);
+
+	// Support opening a file from the command line (Open With)
+	int argc = 0;
+	LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+	if (argv && argc > 1)
+	{
+		// argv[1] is the file path
+		const wchar_t* szFile = argv[1];
+		HWND hwndTab = FindWindowEx(hwnd, NULL, WC_TABCONTROL, NULL);
+		if (hwndTab)
+		{
+			HWND hwndEdit = CreateWindowEx(WS_EX_CLIENTEDGE, L"RICHEDIT50W", L"",
+				WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | WS_VSCROLL | WS_HSCROLL,
+				0, 30, 800, 600, hwnd, NULL, GetModuleHandle(NULL), NULL);
+			SendMessage(hwndEdit, EM_EXLIMITTEXT, 0, -1);
+			RECT rcClient;
+			GetClientRect(hwnd, &rcClient);
+			MoveWindow(hwndEdit, 0, 30, rcClient.right, rcClient.bottom - 30, TRUE);
+			if (!g_hFont)
+			{
+				g_hFont = CreateFont(
+					-MulDiv(11, GetDeviceCaps(GetDC(hwnd), LOGPIXELSY), 72),
+					0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, DEFAULT_CHARSET,
+					OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
+					FIXED_PITCH | FF_MODERN, L"Consolas");
+			}
+			SendMessage(hwndEdit, WM_SETFONT, (WPARAM)g_hFont, TRUE);
+			OpenFileToEditor(hwndEdit, szFile);
+			AddTab(hwndTab, szFile, hwndEdit);
+		}
+		LocalFree(argv);
+	}
 
 	MSG msg;
 	while (GetMessage(&msg, NULL, 0, 0))
