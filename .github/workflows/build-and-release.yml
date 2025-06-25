@@ -28,30 +28,24 @@ jobs:
         msbuild SimpleTextEditor.sln /p:Configuration=Release /p:Platform=x64 /p:OutputPath=..\build\Release\
       shell: cmd
       
-    - name: Copy executable and dependencies
-      run: |
-        mkdir build\Release
-        copy src\x64\Release\SimpleTextEditor.exe build\Release\SimpleTextEditor-${{ github.ref_name }}.exe
-      shell: cmd
-      
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: SimpleTextEditor-${{ github.ref_name }}.exe
-        path: build/Release/SimpleTextEditor-${{ github.ref_name }}.exe
+        name: SimpleTextEditor.exe
+        path: build/Release/SimpleTextEditor.exe
         
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
         files: |
-          build/Release/SimpleTextEditor-${{ github.ref_name }}.exe
+          build/Release/SimpleTextEditor.exe
         name: Simple Text Editor ${{ github.ref_name }}
         body: |
           ## Simple Text Editor Release ${{ github.ref_name }}
           
           ### What's Included
-          - SimpleTextEditor-${{ github.ref_name }}.exe - Main application executable
+          - SimpleTextEditor.exe - Main application executable
           
           ### System Requirements
           - Windows 10/11 (x64)
