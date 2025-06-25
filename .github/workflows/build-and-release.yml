@@ -28,6 +28,12 @@ jobs:
         msbuild SimpleTextEditor.sln /p:Configuration=Release /p:Platform=x64 /p:OutputPath=..\build\Release\
       shell: cmd
       
+    - name: Copy executable and dependencies
+      run: |
+        mkdir build\Release
+        copy src\x64\Release\SimpleTextEditor.exe build\Release\SimpleTextEditor.exe
+      shell: cmd
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
