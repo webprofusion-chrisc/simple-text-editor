@@ -1,6 +1,8 @@
 # Simple Text Editor
 
-A lightweight, Windows-native text editor built with C++ and the Win32 API. This editor provides essential text editing capabilities with a clean, tabbed interface.
+Sometimes you just need a tiny and quick text editor.
+
+*Simple Text Editor* is a lightweight, Windows-native text editor built with C++ and the Win32 API. This editor provides essential text editing capabilities with a clean, tabbed interface.
 
 ## Features
 
