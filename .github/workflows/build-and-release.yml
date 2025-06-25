@@ -40,32 +40,32 @@ jobs:
         name: SimpleTextEditor.exe
         path: build/Release/SimpleTextEditor.exe
         
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v2
-      with:
-        files: |
-          build/Release/SimpleTextEditor.exe
-        name: Simple Text Editor ${{ github.ref_name }}
-        body: |
-          ## Simple Text Editor Release ${{ github.ref_name }}
-          
-          ### What's Included
-          - SimpleTextEditor.exe - Main application executable
-          
-          ### System Requirements
-          - Windows 10/11 (x64)
-          - Visual C++ Redistributable (if not already installed)
-          
-          ### Installation
-          1. Download the executable
-          2. Place it in a directory of your choice
-          3. Optionally, create a shortcut for easy access or add that location to your PATH
-          4. Run SimpleTextEditor.exe
-          
-          **Built from commit:** ${{ github.sha }}
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+   # - name: Create Release
+   #   if: startsWith(github.ref, 'refs/tags/')
+   #   uses: softprops/action-gh-release@v2
+   #   with:
+   #     files: |
+   #       build/Release/SimpleTextEditor.exe
+   #     name: Simple Text Editor ${{ github.ref_name }}
+   #     body: |
+   #       ## Simple Text Editor Release ${{ github.ref_name }}
+   #       
+   #       ### What's Included
+   #       - SimpleTextEditor.exe - Main application executable
+   #       
+   #       ### System Requirements
+   #       - Windows 10/11 (x64)
+   #       - Visual C++ Redistributable (if not already installed)
+   #       
+   #       ### Installation
+   #       1. Download the executable
+   #       2. Place it in a directory of your choice
+   #       3. Optionally, create a shortcut for easy access or add that location to your PATH
+   #       4. Run SimpleTextEditor.exe
+   #       
+   #       **Built from commit:** ${{ github.sha }}
+   #     draft: true
+   #     prerelease: false
+   #     generate_release_notes: true
+   #   env:
+   #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
